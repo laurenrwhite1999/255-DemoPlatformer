@@ -82,7 +82,8 @@
 				if (KeyboardInput.isKeyDown(Keyboard.SPACE) && canDoubleJump) {
 					velocity.y -= VERTICAL_ACCELERATION * Time.dt;
 					doubleJump();
-					if (y < maxHeight) isPlayerOnGround = false;
+					numberOfJumps--;
+					if (y < maxHeight || numberOfJumps == 0) isPlayerOnGround = false;
 				}
 
 				if (!KeyboardInput.isKeyDown(Keyboard.SPACE)) { // spacebar is not being pressed
@@ -102,12 +103,10 @@
 			if (numberOfJumps == 1) maxHeight = 225;
 			
 			if (numberOfJumps == 0) {
-				isPlayerOnGround = false;
 				canDoubleJump = false;
 				maxHeight = 550;
+				numberOfJumps == 2
 			}
-			
-			numberOfJumps--;
 		}
 
 		/**
