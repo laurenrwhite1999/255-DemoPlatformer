@@ -7,68 +7,78 @@
 	 * This class contains all the code relating to keyboard input.
 	 */
 	public class KeyboardInput {
-		static public var keyLeft: Boolean = false; // left arrow key
-		static public var keyUp: Boolean = false; // up arrow key
-		static public var keyRight: Boolean = false; // right arrow key
-		static public var keyDown: Boolean = false; // down arrow key
-		static public var keyEnter: Boolean = false; // enter key
-
-		static public var aKey: Boolean = false; // A key
-		static public var wKey: Boolean = false; // W key
-		static public var dKey: Boolean = false; // D key
-		static public var sKey: Boolean = false; // s key
-		
-		static public var keySpace:Boolean = false;
+		/** Keeps track of the key's current state. */
+		static public var keysState: Array = new Array();
+		/** Keeps track of the key's previous state. */
+		static public var keysPrevState: Array = new Array();
 
 		/**
-		 * This is the KeyboardInput constructor. It contains the Event
-		 * Listeners for KEY_UP and KEY_DOWN.
-		 * @param stage This ties the Event Listeners to the Stage
+		 * This function sets up the event listeners to tell if the key is pressed
+		 * down or if the key is up.
+		 * @param stage Defines the stage to setup keyboard input to.
 		 */
-		public function setup(stage: Stage) {
+		static public function setup(stage: Stage) {
 			stage.addEventListener(KeyboardEvent.KEY_DOWN, handleKeyDown);
 			stage.addEventListener(KeyboardEvent.KEY_UP, handleKeyUp);
 		} // ends the KeyboardInput() function
 
 		/**
-		 * This function determines whether or not the key has been pressed.
-		 * @param keyCode This is the number of the key that is pressed.
-		 * @param isDown This determines whether or not the key is currently
-		 * being pressed.
+		 * This function's job is to cache all of the key values for the next frame.
 		 */
-		private function updateKey(keyCode: int, isDown: Boolean): void {
-			if (keyCode == 13) keyEnter = isDown;
-			if (keyCode == 37) keyLeft = isDown; // move player left
-			if (keyCode == 38) keyUp = isDown; // move player up
-			if (keyCode == 39) keyRight = isDown; // move player right
-			if (keyCode == 40) keyDown = isDown; // move player down
+		static public function update(): void {
+			keysPrevState = keysState.slice(); // in this context, slice() gives us a copy of the array
+		} // ends the update() function
 
-			if (keyCode == 65) aKey = isDown; // move player left
-			if (keyCode == 87) wKey = isDown; // move player up
-			if (keyCode == 68) dKey = isDown; // move player right
-			if (keyCode == 83) sKey = isDown; // move player down
-			
-			if(keyCode == 32) keySpace = isDown;
+		/**
+		 * This function sets the key's state equal to isDown.
+		 * @param keyCode Defines the key code of whatever key is pressed.
+		 * @param isDown Defines whether that key is pressed or not.
+		 */
+		static private function updateKey(keyCode: int, isDown: Boolean): void {
+			keysState[keyCode] = isDown;
 		} // ends the updateKey() function
 
 		/**
-		 * This function calls the updateKey() function, and if the key is
-		 * currently being pressed, sets isDown to true.
-		 * @param e The Event that is triggered by this KeyboardEvent.
+		 * This function sets isDown equal to true if the key is currently being pressed.
+		 * @param e The event that triggers this event handler.
 		 */
-		public function handleKeyDown(e: KeyboardEvent): void {
-			//trace(e.keyCode);
+		static private function handleKeyDown(e: KeyboardEvent): void {
 			updateKey(e.keyCode, true);
-		} // ends the handleKeyDown function
+		} // ends the handleKeyDown() function
 
 		/**
-		 * This function calls the updateKey() function, and if the key is not
-		 * currently being pressed, sets isDown to false.
-		 * @param e The Event that is triggered by this KeyboardEvent.
+		 * This function sets isDown equal to false if the key is not currently being pressed.
+		 * @param e The event that triggers this event handler.
 		 */
-		public function handleKeyUp(e: KeyboardEvent): void {
+		static private function handleKeyUp(e: KeyboardEvent): void {
 			updateKey(e.keyCode, false);
 		} // ends the handleKeyUp() function
+
+		/**
+		 * This function determines whether or not the key is currently down.
+		 * @param keyCode The key code of the key being pressed.
+		 * @return keysState Returns the current state of the key being pressed.
+		 */
+		static public function isKeyDown(keyCode: int): Boolean {
+			if (keyCode < 0) return false;
+			if (keyCode >= keysState.length) return false;
+
+			return keysState[keyCode];
+		} // ends the isKeyDown() function
+
+		/**
+		 * This function sets the key's state to down.
+		 * @param keyCode The key code of the key being pressed.
+		 */
+		static public function onKeyDown(keyCode: int): Boolean {
+			if (keyCode < 0) return false;
+			if (keyCode >= keysState.length) return false;
+
+			if (keysState[keyCode] == false) return false;
+			if (keysPrevState[keyCode] == true) return false;
+
+			return true;
+		} // ends the onKeyDown() function
 
 	} // ends the KeyboardInput class
 

@@ -15,21 +15,20 @@
 		public static var time: Number = 0;
 		/** The timestamp of the previous frame, measured in milliseconds. */
 		private static var timePrev: Number = 0;
-		
+
 		/** A scalar for dtScaled. Use this to creat slowmo effects or to pause the game. */
-		public static var scale:Number = 1;
+		public static var scale: Number = 1;
 
 		/**
 		 * This method calculates deltaTime. It should be called once per frame from the game loop.
 		 */
 		public static function update(): void {
 			time = getTimer();
-			// dt = time - previous time
 			dt = (time - timePrev) / 1000;
-			dtScaled = dt* scale;
+			dtScaled = dt * scale;
 			timePrev = time; // cache for next frame
-		}
+		} // ends the update() function
 
-	}
+	} // ends the Time class
 
-}
+} // ends the package

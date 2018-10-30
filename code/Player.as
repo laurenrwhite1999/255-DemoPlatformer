@@ -2,6 +2,7 @@
 
 	import flash.display.MovieClip;
 	import flash.geom.Point;
+	import flash.ui.Keyboard;
 
 	/**
 	 * This class controls the player.
@@ -31,24 +32,31 @@
 		 * This function updates the player each frame.
 		 */
 		public function update(): void {
-			if (KeyboardInput.keyLeft) velocity.x -= HORIZONTAL_ACCELERATION * Time.dt;
-			if (KeyboardInput.keyRight) velocity.y -= HORIZONTAL_ACCELERATION * Time.dt;
-
-			if (!KeyboardInput.keyLeft && !KeyboardInput.keyRight) { // left and right not being pressed
-				if (velocity.x < 0) {
-					velocity.x += HORIZONTAL_DECELERATION * Time.dt; // accelerate right
-					if (velocity.x > 0) velocity.x = 0; //clamp at 0
-				}
-				if (velocity.x > 0) {
-					velocity.x -= HORIZONTAL_DECELERATION * Time.dt; // accelerate left
-					if (velocity.x < 0) velocity.x = 0; //clamp at 0
-				}
-			}
+			handleWalking();
 
 			doPhysics();
 
 			detectGround();
 		} // ends the update() function
+
+		/**
+		 * This function allows the player to walk left or right.
+		 */
+		private function handleWalking(): void {
+			if (KeyboardInput.isKeyDown(Keyboard.LEFT)) velocity.x -= HORIZONTAL_ACCELERATION * Time.dt;
+			if (KeyboardInput.isKeyDown(Keyboard.RIGHT)) velocity.x += HORIZONTAL_ACCELERATION * Time.dt;
+
+			if (!KeyboardInput.isKeyDown(Keyboard.LEFT) && !KeyboardInput.isKeyDown(Keyboard.RIGHT)) { // left and right not being pressed...
+				if (velocity.x < 0) { // moving left
+					velocity.x += HORIZONTAL_DECELERATION * Time.dt; // accelerate right
+					if (velocity.x > 0) velocity.x = 0; // clamp at 0
+				}
+				if (velocity.x > 0) { // moving right
+					velocity.x -= HORIZONTAL_DECELERATION * Time.dt; // accelerate left
+					if (velocity.x < 0) velocity.x = 0; // clamp at 0
+				}
+			}
+		} // ends the handleWalking() function
 
 		/**
 		 * This function applies the physics to the player character.
@@ -78,7 +86,7 @@
 				velocity.y = 0;
 			}
 		} // ends the detectGround() function
-		
+
 	} // ends Player class
 
 } // ends package
