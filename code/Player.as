@@ -10,30 +10,29 @@
 	public class Player extends MovieClip {
 
 		/** The gravity that is applied to the player as it falls. */
-		private var gravity: Point = new Point(0, 600);
+		private var gravity: Point = new Point(0, 1000);
 		/** The max speed that the player can move left or right. */
 		private var maxSpeed: Number = 200;
-		/** This is the max height the player can reach. */
-		private var maxHeight: Number = 550;
 		/** The velocity of the player. */
 		private var velocity: Point = new Point(1, 5);
-		/** The number of jumps the player has left. */
-		private var numberOfJumps: Number = 2;
 
 		/** The rate at which the player accelerates left or right. */
 		private const HORIZONTAL_ACCELERATION: Number = 800;
 		/** The rate at which the player decelerates left or right. */
 		private const HORIZONTAL_DECELERATION: Number = 800;
 
-		/** The rate at which the player accelerates up or down. */
-		private const VERTICAL_ACCELERATION: Number = 1600;
-		/** The rate at which the player decelerates up or down. */
-		private const VERTICAL_DECELERATION: Number = 1600;
-
 		/** Stores whether or not the player is currently on the ground. */
 		private var isPlayerOnGround: Boolean = false;
-		/** Determines whether or not the player has the ability to double jump. */
-		private var canDoubleJump: Boolean = true;
+		/** Whether or not the player is moving upward in a jump. This effects gravity. */
+		private var isJumping = false;
+
+		/** The number of jumps the player has left. */
+		private var airJumpsLeft: int = 1;
+		/** The maximum number of jumps the player can have. */
+		private var airJumpsMax: int = 1;
+
+		/** The velocity value of the player's jump. */
+		private var jumpVelocity: Number = 400;
 
 		/**
 		 * This is the Player constructor code.
@@ -47,7 +46,7 @@
 		 */
 		public function update(): void {
 			handleWalking();
-
+			
 			handleJumping();
 
 			doPhysics();
@@ -75,47 +74,39 @@
 		} // ends the handleWalking() function
 
 		/**
-		 * This function makes the player jump if the spacebar is pressed.
+		 * This function allows the player to jump based on how many air jumps they have left.
 		 */
 		private function handleJumping(): void {
-			if (isPlayerOnGround) {
-				if (KeyboardInput.isKeyDown(Keyboard.SPACE) && canDoubleJump) {
-					velocity.y -= VERTICAL_ACCELERATION * Time.dt;
-					doubleJump();
-					numberOfJumps--;
-					if (y < maxHeight || numberOfJumps == 0) isPlayerOnGround = false;
-				}
-
-				if (!KeyboardInput.isKeyDown(Keyboard.SPACE)) { // spacebar is not being pressed
-					if (velocity.y < 0) { // moving up
-						velocity.y += VERTICAL_DECELERATION * Time.dt; // accelerate up
-						if (velocity.y > 0) velocity.y = 0; // clamp at 0
+			if (KeyboardInput.onKeyDown(Keyboard.SPACE)) { // jump was pressed
+				if (isPlayerOnGround) { // player is on the ground
+					velocity.y = -jumpVelocity; // apply an impulse up
+					isPlayerOnGround = false;
+					isJumping = true;
+				} else { // player is in the air attempting a double jump
+					if (airJumpsLeft > 0) { // if we have air jumps left:
+						velocity.y = -jumpVelocity;
+						airJumpsLeft--;
+						isJumping = true;
 					}
 				}
 			}
-		} // ends the handleJumping() function
 
-		/**
-		 * This function determines whether or not the player currently has the ability to double
-		 * jump.
-		 */
-		private function doubleJump(): void {
-			if (numberOfJumps == 1) maxHeight = 225;
-			
-			if (numberOfJumps == 0) {
-				canDoubleJump = false;
-				maxHeight = 550;
-				numberOfJumps == 2
-			}
-		}
+			// if the space key is not down, isJumping is false
+			if (!KeyboardInput.isKeyDown(Keyboard.SPACE)) isJumping = false;
+			if (velocity.y > 0) isJumping = false;
+		} // ends the handleJumping() function
 
 		/**
 		 * This function applies the physics to the player character.
 		 */
 		private function doPhysics(): void {
+			var gravityMultiplier: Number = .5;
+
+			if (!isJumping) gravityMultiplier = 2;
+
 			// apply gravity to velocity:
-			velocity.x += gravity.x * Time.dt;
-			velocity.y += gravity.y * Time.dt;
+			//velocity.x += gravity.x * Time.dt * gravityMultiplier;
+			velocity.y += gravity.y * Time.dt * gravityMultiplier;
 
 			// constrain to maxSpeed
 			if (velocity.x > maxSpeed) velocity.x = maxSpeed; // clamp going right
@@ -131,12 +122,12 @@
 		 */
 		private function detectGround(): void {
 			//look at y position
-			var ground: Number = 650
+			var ground: Number = 350
 			if (y > ground) {
+				isPlayerOnGround = true;
+				airJumpsLeft = airJumpsMax;
 				y = ground; // clamp
 				velocity.y = 0;
-				isPlayerOnGround = true;
-				canDoubleJump = true;
 			}
 		} // ends the detectGround() function
 
