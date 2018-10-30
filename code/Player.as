@@ -40,7 +40,7 @@
 		 * This is the Player constructor code.
 		 */
 		public function Player() {
-			collider = new ColliderAABB(30, 50);
+			collider = new ColliderAABB(width / 2, height / 2);
 			} // ends the Player() constuctor
 
 			/**
@@ -54,6 +54,8 @@
 				doPhysics();
 
 				detectGround();
+				
+				collider.calcEdges(x, y);
 			} // ends the update() function
 
 			/**

@@ -32,6 +32,20 @@
 			ymax = y + halfHeight;
 		} // ends the calcEdges() function
 
+		/**
+		 * This function checks to see if this AABB is overlapping another AABB.
+		 * @param other The other AABB to check this AABB against.
+		 * @return Whether or not they are overlapping. If true, they are overlapping.
+		 */
+		public function checkOverlap(other:ColliderAABB): Boolean {
+			if(this.xmax < other.xmin) return false; // gap to the right
+			if(this.xmin > other.xmax) return false; // gap to the left
+			if(this.ymax < other.ymin) return false; // gap below
+			if(this.ymin > other.ymax) return false; // gap above
+			
+			return true;
+		}
+
 	} // ends the ColliderAABB class
 
 } // ends the package
