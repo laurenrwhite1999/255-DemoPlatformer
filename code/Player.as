@@ -10,11 +10,15 @@
 	public class Player extends MovieClip {
 
 		/** The gravity that is applied to the player as it falls. */
-		private var gravity: Point = new Point(0, 300);
+		private var gravity: Point = new Point(0, 600);
 		/** The max speed that the player can move left or right. */
 		private var maxSpeed: Number = 200;
+		/** This is the max height the player can reach. */
+		private var maxHeight: Number = 550;
 		/** The velocity of the player. */
 		private var velocity: Point = new Point(1, 5);
+		/** The number of jumps the player has left. */
+		private var numberOfJumps: Number = 2;
 
 		/** The rate at which the player accelerates left or right. */
 		private const HORIZONTAL_ACCELERATION: Number = 800;
@@ -22,12 +26,14 @@
 		private const HORIZONTAL_DECELERATION: Number = 800;
 
 		/** The rate at which the player accelerates up or down. */
-		private const VERTICAL_ACCELERATION: Number = 800;
+		private const VERTICAL_ACCELERATION: Number = 1600;
 		/** The rate at which the player decelerates up or down. */
 		private const VERTICAL_DECELERATION: Number = 1600;
 
 		/** Stores whether or not the player is currently on the ground. */
 		private var isPlayerOnGround: Boolean = false;
+		/** Determines whether or not the player has the ability to double jump. */
+		private var canDoubleJump: Boolean = true;
 
 		/**
 		 * This is the Player constructor code.
@@ -73,7 +79,11 @@
 		 */
 		private function handleJumping(): void {
 			if (isPlayerOnGround) {
-				if (KeyboardInput.isKeyDown(Keyboard.SPACE)) velocity.y -= VERTICAL_ACCELERATION * Time.dt;
+				if (KeyboardInput.isKeyDown(Keyboard.SPACE) && canDoubleJump) {
+					velocity.y -= VERTICAL_ACCELERATION * Time.dt;
+					doubleJump();
+					if (y < maxHeight) isPlayerOnGround = false;
+				}
 
 				if (!KeyboardInput.isKeyDown(Keyboard.SPACE)) { // spacebar is not being pressed
 					if (velocity.y < 0) { // moving up
@@ -83,6 +93,22 @@
 				}
 			}
 		} // ends the handleJumping() function
+
+		/**
+		 * This function determines whether or not the player currently has the ability to double
+		 * jump.
+		 */
+		private function doubleJump(): void {
+			if (numberOfJumps == 1) maxHeight = 225;
+			
+			if (numberOfJumps == 0) {
+				isPlayerOnGround = false;
+				canDoubleJump = false;
+				maxHeight = 550;
+			}
+			
+			numberOfJumps--;
+		}
 
 		/**
 		 * This function applies the physics to the player character.
@@ -106,11 +132,12 @@
 		 */
 		private function detectGround(): void {
 			//look at y position
-			var ground: Number = 350
+			var ground: Number = 650
 			if (y > ground) {
 				y = ground; // clamp
 				velocity.y = 0;
 				isPlayerOnGround = true;
+				canDoubleJump = true;
 			}
 		} // ends the detectGround() function
 
