@@ -2,11 +2,14 @@
 
 	import flash.display.MovieClip;
 	import flash.events.Event;
+	import flash.geom.Point;
 
 	/**
 	 * This is the class that runs the game.
 	 */
 	public class Game extends MovieClip {
+
+		static public var platforms: Array = new Array();
 
 		/**
 		 * This function sets up the keyboard input and adds the event listener
@@ -23,18 +26,25 @@
 		private function gameLoop(e: Event): void {
 			Time.update();
 			player.update();
-			
+
 			doCollisionDetection();
 
 			KeyboardInput.update();
 		} // ends the gameLoop() function
-		
+
+		/**
+		 * Prevents the player from moving through the platforms.
+		 */
 		private function doCollisionDetection(): void {
-			if(player.collider.checkOverlap(platform.collider)) {
-				platform.alpha = .5;
-			} else {
-				platform.alpha = 1;
-			}
+			for (var i: int = 0; i < platforms.length; i++) {
+				if (player.collider.checkOverlap(platforms[i].collider)) {
+					// find the fix:
+					var fix: Point = player.collider.findOverlapFix(platforms[i].collider);
+
+					// apply the fix:
+					player.applyFix(fix);
+				}
+			} // ends the for() loop
 		} // ends the doCollisionDetection() function
 
 	} // ends Game class

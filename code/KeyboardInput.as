@@ -69,15 +69,13 @@
 		/**
 		 * This function sets the key's state to down.
 		 * @param keyCode The key code of the key being pressed.
+		 * @return The key's current state and the key's previous state.
 		 */
 		static public function onKeyDown(keyCode: int): Boolean {
 			if (keyCode < 0) return false;
 			if (keyCode >= keysState.length) return false;
 
-			if (keysState[keyCode] == false) return false;
-			if (keysPrevState[keyCode] == true) return false;
-
-			return true;
+			return (keysState[keyCode] && ! keysPrevState[keyCode]);
 		} // ends the onKeyDown() function
 
 	} // ends the KeyboardInput class
